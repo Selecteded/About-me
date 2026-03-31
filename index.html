@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>My Personal CV</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000000'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%2300ffff' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='%2300ffff' stroke-width='1.5'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, 'Roboto', sans-serif;
+            color: #f0f0f0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        #cosmic-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+            backdrop-filter: blur(1px);
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #ccc;
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 0.25rem 0;
+            position: relative;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn.active {
+            color: white;
+            text-shadow: 0 0 6px rgba(255,255,255,0.8);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #fff;
+            box-shadow: 0 0 6px #0ff;
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 0.8rem;
+            background: rgba(20,20,20,0.7);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+        }
+
+        .lang-btn {
+            background: none;
+            border: 1px solid #555;
+            color: #ddd;
+            font-weight: 500;
+            padding: 0.3rem 0.9rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .lang-btn.active-lang {
+            background: white;
+            color: black;
+            border-color: white;
+            box-shadow: 0 0 6px cyan;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-panel.active-panel {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+
+        .cards-grid {
+            display: grid;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+
+        #social-panel .cards-grid {
+            grid-template-columns: repeat(2, minmax(260px, 1fr));
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .neon-card {
+            background: #0a0a0a;
+            border-radius: 28px;
+            border: 1px solid #0ff;
+            box-shadow: 0 0 8px #0ff, 0 0 15px rgba(0,255,255,0.3);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            backdrop-filter: blur(2px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .neon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 14px cyan, 0 0 25px rgba(0,255,255,0.5);
+        }
+
+        .card-icon {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .card-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            word-break: break-word;
+        }
+
+        .clickable-card {
+            cursor: pointer;
+        }
+
+        .info-card {
+            background: #0a0a0a;
+            border-radius: 32px;
+            border: 1px solid #0ff;
+            box-shadow: 0 0 10px rgba(0,255,255,0.4);
+            padding: 2rem;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .info-card h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff, #0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .info-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #ddd;
+            margin-top: 0.8rem;
+        }
+
+        .info-card .work-experience {
+            margin-top: 1.2rem;
+            font-size: 1.1rem;
+            border-left: 2px solid #0ff;
+            padding-left: 1rem;
+            text-align: left;
+            background: rgba(0,255,255,0.05);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            font-weight: 400;
+            border-left: 3px solid #0ff;
+            padding-left: 1rem;
+            text-shadow: 0 0 3px #0ff;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.8rem;
+        }
+
+        .project-card {
+            background: #111;
+            border-radius: 24px;
+            padding: 1.5rem;
+            border: 1px solid #2a2a2a;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            border-color: #0ff;
+            box-shadow: 0 0 10px rgba(0,255,255,0.3);
+            transform: translateY(-3px);
+        }
+
+        .project-card i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #0ff;
+        }
+
+        .project-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-card p {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #0a0a0a;
+            border: 1px solid #0ff;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            color: #0ff;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-close:hover {
+            color: white;
+            text-shadow: 0 0 6px cyan;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            border-bottom: 1px solid cyan;
+            display: inline-block;
+            width: auto;
+            padding-bottom: 0.3rem;
+        }
+
+        .construction-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .construct-btn {
+            background: #111;
+            border: 1px solid #0ff;
+            color: #0ff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+        .construct-btn:hover {
+            background: #0ff;
+            color: black;
+            box-shadow: 0 0 12px cyan;
+        }
+
+        .photo-container {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .photo-container img {
+            max-width: 100%;
+            max-height: 55vh;
+            border-radius: 20px;
+            border: 1px solid cyan;
+            box-shadow: 0 0 15px rgba(0,255,255,0.4);
+        }
+
+        footer {
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #555;
+        }
+
+        @media (max-width: 680px) {
+            .app-container { padding: 1.2rem; }
+            .tab-btn { font-size: 1.2rem; }
+            #social-panel .cards-grid {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+            }
+            .cards-grid { gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="cosmic-canvas"></canvas>
+
+<div class="app-container">
+    <div class="header">
+        <div class="tabs">
+            <button class="tab-btn" data-tab="about" data-key="tab_about">Обо мне</button>
+            <button class="tab-btn" data-tab="portfolio" data-key="tab_portfolio">Портфолио</button>
+            <button class="tab-btn" data-tab="social" data-key="tab_social">Соц сети</button>
+        </div>
+        <div class="lang-switch">
+            <button class="lang-btn" data-lang="ru">РУС</button>
+            <button class="lang-btn" data-lang="en">ENG</button>
+        </div>
+    </div>
+
+
+    <div id="about-panel" class="tab-panel active-panel">
+        <div class="info-card">
+            <h2 data-key="namem">Даниель</h2>
+            <div class="work-experience">
+                <p data-key="about_desc">С 18 лет работаю на стройке. 4 месяца отработал арматурщиком, после чего начал работать с опалубкой и бетоном.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="portfolio-panel" class="tab-panel">
+        <div class="section-title" data-key="portfolio_title">Избранные работы</div>
+        <div class="portfolio-grid">
+            <div class="project-card" id="shalovshchik-card">
+                <i class="fas fa-cube"></i>
+                <h3 data-key="proj_shal_title">Затирщик</h3>
+                <p data-key="proj_shal_desc">Строительные объекты в Zgorzelec</p>
+            </div>
+            <div class="project-card">
+                <i class="fas fa-code"></i>
+                <h3 data-key="proj1_title">HTML Coding</h3>
+                <p data-key="proj1_desc">Небольшое владение HTML и CSS кодом</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="social-panel" class="tab-panel">
+        <div class="cards-grid">
+
+            <div class="neon-card">
+                <div class="card-icon"><i class="fab fa-telegram-plane"></i></div>
+                <div class="card-text">@ocgu3iOF</div>
+            </div>
+
+            <div class="neon-card clickable-card" data-url="https://discord.gg/ksY623rQWU">
+                <div class="card-icon"><i class="fab fa-discord"></i></div>
+                <div class="card-text">selected_</div>
+            </div>
+
+            <div class="neon-card clickable-card" data-url="https://soundcloud.com/selected-847966122">
+                <div class="card-icon"><i class="fab fa-soundcloud"></i></div>
+                <div class="card-text">selected</div>
+            </div>
+
+            <div class="neon-card clickable-card" data-url="https://steamcommunity.com/id/ocgu3iOF52/">
+                <div class="card-icon"><i class="fab fa-steam"></i></div>
+                <div class="card-text">已選</div>
+            </div>
+
+            <div class="neon-card clickable-card" data-url="https://twitter.com/">
+                <div class="card-icon"><i class="fab fa-twitter"></i></div>
+                <div class="card-text">Soon</div>
+            </div>
+
+            <div class="neon-card clickable-card" data-url="https://github.com/Selecteded">
+                <div class="card-icon"><i class="fab fa-github"></i></div>
+                <div class="card-text">GitHub</div>
+            </div>
+
+            <div class="neon-card clickable-card" data-url="https://www.instagram.com/ks10l28x?igsh=aDdwMXJrY2luMDRp">
+                <div class="card-icon"><i class="fab fa-instagram"></i></div>
+                <div class="card-text">@KS10L28X</div>
+            </div>
+
+            <div class="neon-card clickable-card vk-card" data-url="https://vk.com/ocgu3iof">
+                <div class="card-icon"><i class="fab fa-vk"></i></div>
+                <div class="card-text" data-key="vk_label">VK</div>
+            </div>
+        </div>
+    </div>
+    <footer>✦—ダニエル—✦/Daniel</footer>
+</div>
+
+<div id="shalModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <div style="text-align: center;">
+            <div class="modal-title" data-key="modal_title">Стройки Zgorzelec</div>
+        </div>
+        <div class="construction-buttons">
+            <button class="construct-btn" data-photo="0" data-key="btn_grout1">Затирка 11.03.2026</button>
+            <button class="construct-btn" data-photo="1" data-key="btn_grout2">Затирка 11.03.2026</button>
+            <button class="construct-btn" data-photo="2" data-key="btn_grout3">Затирка 09.03.2026</button>
+            <button class="construct-btn" data-photo="3" data-key="btn_grout4">Затирка 09.03.2026</button>
+        </div>
+        <div class="photo-container">
+            <img id="modal-photo" src="" alt="Фото стройки">
+        </div>
+    </div>
+</div>
+
+<script>
+    const translations = {
+        ru: {
+            tab_about: "Обо мне",
+            tab_portfolio: "Портфолио",
+            tab_social: "Соц сети",
+            portfolio_title: "Избранные работы",
+            proj1_title: "HTML Coding",
+            proj1_desc: "Небольшое владение HTML и CSS кодом",
+            proj_shal_title: "Затирщик",
+            proj_shal_desc: "Строительные объекты в Zgorzelec",
+            modal_title: "Стройки Zgorzelec",
+            namem: "Даниель",
+            about_desc: "С 18 лет работаю на стройке. 4 месяца отработал арматурщиком, после чего начал работать с опалубкой и бетоном.",
+            vk_label: "VK",
+            btn_grout1: "Затирка 11.03.2026",
+            btn_grout2: "Затирка 11.03.2026",
+            btn_grout3: "Затирка 09.03.2026",
+            btn_grout4: "Затирка 09.03.2026"
+        },
+        en: {
+            tab_about: "About Me",
+            tab_portfolio: "Portfolio",
+            tab_social: "Socials",
+            portfolio_title: "Featured Work",
+            proj1_title: "HTML Coding",
+            proj1_desc: "Basic knowledge of HTML and CSS",
+            proj_shal_title: "Grouting Master",
+            proj_shal_desc: "Construction sites in Zgorzelec",
+            modal_title: "Zgorzelec Construction Sites",
+            namem: "Daniel",
+            about_desc: "I have been working in construction since I was 18. I worked as a rebar worker for 4 months, then started working with formwork and concrete.",
+            vk_label: "VK",
+            btn_grout1: "Grouting 11.03.2026",
+            btn_grout2: "Grouting 11.03.2026",
+            btn_grout3: "Grouting 09.03.2026",
+            btn_grout4: "Grouting 09.03.2026"
+        }
+    };
+
+    let currentLang = 'ru';
+
+    function updateLanguage() {
+        const t = translations[currentLang];
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            const key = btn.getAttribute('data-key');
+            if (key && t[key]) btn.innerText = t[key];
+        });
+
+        document.querySelectorAll('[data-key]').forEach(el => {
+            const key = el.getAttribute('data-key');
+            if (t[key] && el.tagName !== 'BUTTON') {
+                if (el.classList && el.classList.contains('tab-btn')) return;
+                el.innerText = t[key];
+            }
+        });
+
+        const modalBtns = document.querySelectorAll('.construct-btn');
+        modalBtns.forEach(btn => {
+            const key = btn.getAttribute('data-key');
+            if (key && t[key]) {
+                btn.innerText = t[key];
+            }
+        });
+
+        const shalTitle = document.querySelector('#shalovshchik-card h3');
+        const shalDesc = document.querySelector('#shalovshchik-card p');
+        if (shalTitle && t.proj_shal_title) shalTitle.innerText = t.proj_shal_title;
+        if (shalDesc && t.proj_shal_desc) shalDesc.innerText = t.proj_shal_desc;
+
+        const projTitles = document.querySelectorAll('#portfolio-panel .project-card h3');
+        const projDescs = document.querySelectorAll('#portfolio-panel .project-card p');
+        if (projTitles.length >= 2 && projDescs.length >= 2) {
+            if (t.proj1_title) projTitles[1].innerText = t.proj1_title;
+            if (t.proj1_desc) projDescs[1].innerText = t.proj1_desc;
+        }
+
+        const portTitle = document.querySelector('#portfolio-panel .section-title');
+        if (portTitle) portTitle.innerText = t.portfolio_title;
+        const modalTitle = document.querySelector('.modal-title');
+        if (modalTitle && t.modal_title) modalTitle.innerText = t.modal_title;
+
+        const vkCard = document.querySelector('.vk-card');
+        if (vkCard) {
+            vkCard.style.display = currentLang === 'en' ? 'none' : 'flex';
+        }
+    }
+
+    function refreshAll() {
+        updateLanguage();
+    }
+
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const panels = {
+        about: document.getElementById('about-panel'),
+        portfolio: document.getElementById('portfolio-panel'),
+        social: document.getElementById('social-panel')
+    };
+
+    function activateTab(tabId) {
+        Object.values(panels).forEach(panel => panel?.classList.remove('active-panel'));
+        if (panels[tabId]) panels[tabId].classList.add('active-panel');
+        tabBtns.forEach(btn => {
+            const val = btn.getAttribute('data-tab');
+            if (val === tabId) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+    }
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.getAttribute('data-tab');
+            if (tabId) activateTab(tabId);
+        });
+    });
+
+    const langBtns = document.querySelectorAll('.lang-btn');
+    langBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const lang = btn.getAttribute('data-lang');
+            if (lang === 'ru' || lang === 'en') {
+                currentLang = lang;
+                refreshAll();
+                langBtns.forEach(b => b.classList.remove('active-lang'));
+                btn.classList.add('active-lang');
+            }
+        });
+    });
+    document.querySelector('.lang-btn[data-lang="ru"]').classList.add('active-lang');
+    refreshAll();
+
+    function makeClickable(selector) {
+        document.querySelectorAll(selector).forEach(el => {
+            const url = el.getAttribute('data-url');
+            if (url && url !== '#') {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                });
+            }
+        });
+    }
+    makeClickable('#social-panel .neon-card.clickable-card');
+
+    const modal = document.getElementById('shalModal');
+    const modalImg = document.getElementById('modal-photo');
+    const closeModal = document.querySelector('.modal-close');
+    const shalCard = document.getElementById('shalovshchik-card');
+
+    const photos = [
+        "https://cdn.discordapp.com/attachments/1363903202772386142/1488516445808758844/PXL_20260309_092849389.MP.jpg?ex=69cd1077&is=69cbbef7&hm=c269307470a0b715edcd1adf68e0c83bf0e741b01d01b51b3abf0fd26bc5c7a8&",
+        "https://cdn.discordapp.com/attachments/1363903202772386142/1488516446718918836/PXL_20260311_171427155.jpg?ex=69cd1078&is=69cbbef8&hm=8c6e3efe2f840acf161c8dc2ade92a53592ede90c90eb03c61542103327937d1&",
+        "https://cdn.discordapp.com/attachments/1363903202772386142/1488516447188553778/PXL_20260311_171431267.jpg?ex=69cd1078&is=69cbbef8&hm=8319c9343b76ad22c6ce9e8232d0969d20b104d5f447a959371dcf05feb957b3&",
+        "https://cdn.discordapp.com/attachments/1363903202772386142/1488516449562787850/PXL_20260311_171511856.jpg?ex=69cd1078&is=69cbbef8&hm=1f7d13151f66dbc7f9ae527ade498163eab37dcd15940f55bde5470494d5bcb0&"
+    ];
+
+    function openModal(photoIndex) {
+        if (photoIndex >= 0 && photoIndex < photos.length) {
+            modalImg.src = photos[photoIndex];
+        } else {
+            modalImg.src = photos[0];
+        }
+        modal.style.display = 'flex';
+    }
+
+    shalCard.addEventListener('click', () => {
+        openModal(0);
+    });
+
+    const btns = document.querySelectorAll('.construct-btn');
+    btns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const photoIdx = parseInt(btn.getAttribute('data-photo'), 10);
+            if (!isNaN(photoIdx) && photos[photoIdx]) {
+                modalImg.src = photos[photoIdx];
+            }
+        });
+    });
+
+    closeModal.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    const canvas = document.getElementById('cosmic-canvas');
+    let ctx = canvas.getContext('2d');
+    let width = window.innerWidth, height = window.innerHeight;
+    let shapes = [];
+
+    class MovingShape {
+        constructor(type, x, y, vx, vy, size, opacity, rotation = 0, rotSpeed = 0) {
+            this.type = type;
+            this.x = x; this.y = y; this.vx = vx; this.vy = vy;
+            this.size = size; this.opacity = opacity;
+            this.rotation = rotation; this.rotSpeed = rotSpeed;
+        }
+        draw(ctx) {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation);
+            ctx.globalAlpha = this.opacity;
+            ctx.strokeStyle = `rgba(255,255,255,${this.opacity*0.8})`;
+            ctx.fillStyle = `rgba(255,255,255,${this.opacity*0.07})`;
+            ctx.lineWidth = 1.2;
+            if (this.type === 'circle') {
+                ctx.beginPath(); ctx.arc(0,0,this.size,0,Math.PI*2); ctx.fill(); ctx.stroke();
+            } else if (this.type === 'square') {
+                ctx.beginPath(); ctx.rect(-this.size/2, -this.size/2, this.size, this.size); ctx.fill(); ctx.stroke();
+            } else if (this.type === 'triangle') {
+                const side = this.size;
+                const h = (Math.sqrt(3)/2)*side;
+                ctx.beginPath(); ctx.moveTo(0, -h/1.5); ctx.lineTo(-side/2, h/2.5); ctx.lineTo(side/2, h/2.5); ctx.closePath(); ctx.fill(); ctx.stroke();
+            }
+            ctx.restore();
+        }
+        update(bounds) {
+            this.x += this.vx; this.y += this.vy;
+            this.rotation += this.rotSpeed;
+            if (this.x - this.size < 0) { this.x = this.size; this.vx = -this.vx; }
+            if (this.x + this.size > bounds.w) { this.x = bounds.w - this.size; this.vx = -this.vx; }
+            if (this.y - this.size < 0) { this.y = this.size; this.vy = -this.vy; }
+            if (this.y + this.size > bounds.h) { this.y = bounds.h - this.size; this.vy = -this.vy; }
+        }
+    }
+
+    function initShapes() {
+        shapes = [];
+        const types = ['circle','square','triangle'];
+        for (let i=0;i<48;i++) {
+            let type = types[Math.floor(Math.random()*3)];
+            let size = 7+Math.random()*30;
+            let x = Math.random()*width, y = Math.random()*height;
+            let vx = (Math.random()-0.5)*0.5, vy = (Math.random()-0.5)*0.5;
+            let op = 0.2+Math.random()*0.55;
+            let rotSp = (Math.random()-0.5)*0.02;
+            shapes.push(new MovingShape(type,x,y,vx,vy,size,op,Math.random()*Math.PI*2,rotSp));
+        }
+        for (let i=0;i<120;i++) {
+            let size = 2+Math.random()*5;
+            let x = Math.random()*width, y = Math.random()*height;
+            let vx = (Math.random()-0.5)*0.25, vy = (Math.random()-0.5)*0.25;
+            shapes.push(new MovingShape('circle',x,y,vx,vy,size,0.3+Math.random()*0.6,0,(Math.random()-0.5)*0.008));
+        }
+    }
+
+    function resizeCanvas() {
+        width = window.innerWidth; height = window.innerHeight;
+        canvas.width = width; canvas.height = height;
+        initShapes();
+    }
+
+    function animateShapes() {
+        if (!ctx) return;
+        ctx.clearRect(0,0,width,height);
+        ctx.fillStyle = '#000000'; ctx.fillRect(0,0,width,height);
+        ctx.fillStyle = 'white';
+        for (let i=0;i<300;i++) {
+            ctx.globalAlpha = 0.2+Math.sin(Date.now()*0.001*(i%13))*0.15;
+            ctx.fillRect((i*173)%width, (i*271)%height, 1.2,1.2);
+        }
+        ctx.globalAlpha = 1.0;
+        const bounds = {w:width, h:height};
+        for (let s of shapes) { s.update(bounds); s.draw(ctx); }
+        requestAnimationFrame(animateShapes);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    animateShapes();
+
+    activateTab('about');
+</script>
+</body>
+</html>
